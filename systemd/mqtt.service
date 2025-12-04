@@ -1,0 +1,27 @@
+[Unit]
+Description=Telemetry MQTT Daemon
+After=network.target mysql.service redis.service mosquitto.service
+Wants=mysql.service redis.service mosquitto.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/mnt/Desarrollos/Temporal/telemetria-endpoint-PHP-MQTT
+ExecStart=/usr/bin/php /mnt/Desarrollos/Temporal/telemetria-endpoint-PHP-MQTT/bin/mqtt_daemon.php
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=telemetry-mqtt
+
+# Límites de recursos
+LimitNOFILE=65536
+MemoryLimit=512M
+
+# Variables de entorno (opcional, si no usas .env)
+# Environment="MQTT_BROKER_HOST=localhost"
+# Environment="MQTT_BROKER_PORT=1883"
+
+[Install]
+WantedBy=multi-user.target

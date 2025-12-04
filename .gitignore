@@ -1,0 +1,42 @@
+# ============================================================================
+# .gitignore - Sistema de Telemetría
+# ============================================================================
+
+# Archivos de configuración con datos sensibles
+.env
+config/local.php
+
+# Logs
+logs/
+*.log
+
+# Caché y temporales
+cache/
+tmp/
+temp/
+
+# Dependencias (si se usan en el futuro)
+vendor/
+node_modules/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Sistema operativo
+Thumbs.db
+desktop.ini
+
+# Backups
+*.bak
+*.backup
+*.old
+
+# Archivos de base de datos locales
+*.sql.gz
+*.sql.bak
+dump.sql

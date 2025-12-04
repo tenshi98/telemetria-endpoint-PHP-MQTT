@@ -1,0 +1,17 @@
+{
+    "name": "tenshi98/telemetria-endpoint-php-mqtt",
+    "description": "Sistema de telemetría con recepción de datos vía MQTT",
+    "type": "project",
+    "require": {
+        "php": ">=7.0",
+        "php-mqtt/client": "^1.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Telemetry\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}
