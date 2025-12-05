@@ -5,9 +5,6 @@
 * Este archivo contiene todas las configuraciones necesarias para el funcionamiento
 * del sistema, incluyendo credenciales de base de datos, Redis, rate limiting y logging.
 *
-* @author Sistema de Telemetría
-* @version 1.0.0
-*
 */
 
 // Prevenir acceso directo
