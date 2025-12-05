@@ -8,29 +8,33 @@ Sistema completo de recepción y procesamiento de datos de telemetría construid
 - [Requisitos](#-requisitos)
 - [Instalación](#-instalación)
 - [Configuración](#-configuración)
+- [Ejecución](#ejecución)
 - [Uso](#-uso)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
 - [Módulos](#-módulos)
 - [Migración a Otras Bases de Datos](#-migración-a-otras-bases-de-datos)
-- [Troubleshooting](#-troubleshooting)
+- [Solución de Problemas](#-solución-de-problemas)
+- [Notas Adicionales](#-notas-adicionales)
 
 ## ✨ Características
 
-- **Caché Redis**: Almacenamiento en caché de dispositivos con fallback automático a MySQL
-- **Rate Limiting**: Control de frecuencia de requests configurable
-- **Validación Robusta**: Validación completa de datos de entrada
-- **Cálculo de Distancia**: Fórmula de Haversine para cálculo preciso de distancias
-- **Logging Completo**: Logs por dispositivo, requests inválidos, sistema y errores
-- **Arquitectura Modular**: Fácil mantenimiento y extensión
-- **Abstracción de BD**: Migración simple a otros motores de base de datos
-- **Manejo de Errores**: Registro de errores en base de datos y archivos
+- ✅ **Recepción de datos**: Soporta HTTP POST y MQTT
+- ✅ **Caché Redis**: Almacenamiento en caché de dispositivos para consultas rápidas
+- ✅ **Rate Limiting**: Control de límite de peticiones por dispositivo configurable
+- ✅ **Validación Robusta**: Validación completa de datos de entrada
+- ✅ **Cálculo de Distancia**: Fórmula de Haversine para cálculo preciso de distancias
+- ✅ **Logging Completo**: Logs por dispositivo, requests inválidos, sistema y errores
+- ✅ **Arquitectura Modular**: Fácil mantenimiento y extensión
+- ✅ **Abstracción de base de datos**: Migración simple a otros motores de base de datos
+- ✅ **Manejo de Errores**: Registro de errores en base de datos y archivos
+- ✅ **Validación de tiempo offline**: Detección de dispositivos fuera de línea
 
-## 📦 Requisitos
+## 🛠️ Requisitos
 
-### Técnicos
+### Software Requerido
 - **PHP**: 7.0 o superior
 - **MySQL**: 5.7 o superior
-- **Redis**: 3.0 o superior
+- **Redis**: 6.0 o superior
 - **MQTT Broker**: Mosquitto 1.4+ (u otro broker compatible)
 - **Composer**: Gestor de dependencias PHP
 - **Extensiones PHP**:
@@ -44,16 +48,16 @@ Sistema completo de recepción y procesamiento de datos de telemetría construid
 - Apache 2.4+ con `mod_rewrite` habilitado (si se mantiene endpoint HTTP)
 - Nginx 1.10+ (configuración alternativa)
 
-## 🚀 Instalación
+## 📦 Instalación
 
-### 1. Clonar o Descargar el Proyecto
+### 1. Clonar o descargar el proyecto
 
 ```bash
 git clone https://github.com/tenshi98/telemetria-endpoint-PHP-MQTT.git
 cd telemetria-endpoint-PHP-MQTT
 ```
 
-### 2. Instalar Dependencias
+### 2. Instalar dependencias
 
 ```bash
 # Instalar Composer si no está instalado
@@ -64,7 +68,46 @@ sudo mv composer.phar /usr/local/bin/composer
 composer install
 ```
 
-### 3. Instalar Mosquitto (Broker MQTT)
+### 3. Instalar Base de Datos
+
+```bash
+# Conectar a MySQL
+mysql -u root -p
+
+# Ejecutar schema
+mysql -u root -p < database/schema.sql
+
+# (Opcional) Cargar datos de prueba
+mysql -u root -p < database/seed.sql
+```
+
+### 4. Configurar Permisos
+
+```bash
+chmod -R 755 .
+chmod -R 777 logs/
+mkdir -p logs/devices
+chmod +x bin/mqtt_daemon.php
+```
+
+### 5. Instalar Redis (opcional)
+
+```bash
+# Ubuntu/Debian
+sudo apt install redis-server
+
+# Iniciar Redis
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+# o
+redis-server
+
+# Verificar que Redis esté corriendo
+redis-cli ping
+# Debe responder: PONG
+```
+
+### 6. Instalar Mosquitto (Broker MQTT - opcional)
 
 ```bash
 # Ubuntu/Debian
@@ -80,70 +123,7 @@ sudo systemctl status mosquitto
 mosquitto_pub -h localhost -t test -m "hello"
 ```
 
-### 4. Configurar Permisos
-
-```bash
-chmod -R 755 .
-chmod -R 777 logs/
-mkdir -p logs/devices
-chmod +x bin/mqtt_daemon.php
-```
-
-### 5. Instalar Base de Datos
-
-```bash
-# Conectar a MySQL
-mysql -u root -p
-
-# Ejecutar schema
-mysql -u root -p < database/schema.sql
-
-# (Opcional) Cargar datos de prueba
-mysql -u root -p < database/seed.sql
-```
-
-### 6. Configurar Redis
-
-```bash
-# Verificar que Redis esté corriendo
-redis-cli ping
-# Debe responder: PONG
-
-# Si no está corriendo, iniciar Redis
-sudo systemctl start redis-server
-sudo systemctl enable redis-server
-```
-
-### 7. Configurar Aplicación
-
-```bash
-# Copiar archivo de configuración de ejemplo
-cp .env.example .env
-
-# Editar configuración
-nano .env
-```
-
-Ajustar los valores en `.env`:
-
-```ini
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=telemetria
-DB_USER=root
-DB_PASS=tu_password
-
-REDIS_HOST=127.0.0.1
-REDIS_PORT=6379
-
-MQTT_BROKER_HOST=localhost
-MQTT_BROKER_PORT=1883
-MQTT_TOPICS=telemetry/#
-
-LOG_PATH=/telemetria-endpoint-PHP/logs
-```
-
-### 8. Iniciar Daemon MQTT
+### 7. Iniciar Daemon MQTT
 
 #### Modo Manual (Desarrollo/Pruebas)
 
@@ -181,6 +161,35 @@ sudo journalctl -u mqtt -f
 
 ## ⚙️ Configuración
 
+### 1. Configurar variables de entorno
+
+```bash
+# Copiar archivo de configuración de ejemplo
+cp .env.example .env
+
+# Editar configuración
+nano .env
+```
+
+Ajustar los valores en `.env`:
+
+```ini
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=telemetria
+DB_USER=root
+DB_PASS=tu_password
+
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+
+MQTT_BROKER_HOST=localhost
+MQTT_BROKER_PORT=1883
+MQTT_TOPICS=telemetry/#
+
+LOG_PATH=/telemetria-endpoint-PHP/logs
+```
+
 ### Archivo de Configuración Principal
 
 El archivo `config/config.php` contiene toda la configuración del sistema. Los valores pueden ser sobrescritos mediante variables de entorno (archivo `.env`).
@@ -214,6 +223,57 @@ Fields:
   - Longitud: DECIMAL
 TTL: 24 horas (configurable)
 ```
+
+## 🏃 Ejecución
+
+### 1. Configurar Servidor Web
+
+#### Apache
+
+El archivo `.htaccess` ya está incluido en `public/`. Asegúrate de que `mod_rewrite` esté habilitado:
+
+```bash
+sudo a2enmod rewrite
+sudo service apache2 restart
+```
+
+Configurar VirtualHost (opcional):
+
+```apache
+<VirtualHost *:80>
+    ServerName telemetria.local
+    DocumentRoot /telemetria-endpoint-PHP/public
+
+    <Directory /telemetria-endpoint-PHP/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+```
+
+#### Nginx
+
+```nginx
+server {
+    listen 80;
+    server_name telemetria.local;
+    root /telemetria-endpoint-PHP/public;
+
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
+```
+
 
 ## 📡 Uso
 
@@ -399,7 +459,7 @@ Ejemplos de errores comunes:
 - **Dispositivo no encontrado**: Identificador no existe en BD
 - **Rate limit**: Demasiados mensajes en corto tiempo
 
-## � Estructura del Proyecto
+## 📁 Estructura del Proyecto
 
 ```
 telemetria-endpoint-PHP-MQTT/
@@ -446,7 +506,7 @@ telemetria-endpoint-PHP-MQTT/
 └── README.md                   # Este archivo
 ```
 
-## 🔧 Módulos
+## 🧩 Módulos
 
 ### 1. MQTT Subscriber
 
@@ -683,7 +743,7 @@ CREATE TABLE equipos_telemetria (
 5. **Actualizar configuración**
 6. **Instanciar nueva clase en `index.php`**
 
-## 🐛 Troubleshooting
+## 🐛 Solución de Problemas
 
 ### Error: "No se pudo conectar a Redis"
 
