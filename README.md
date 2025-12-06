@@ -187,7 +187,7 @@ MQTT_BROKER_HOST=localhost
 MQTT_BROKER_PORT=1883
 MQTT_TOPICS=telemetry/#
 
-LOG_PATH=/telemetria-endpoint-PHP/logs
+LOG_PATH=/telemetria-endpoint-PHP-MQTT/logs
 ```
 
 ### Archivo de Configuración Principal
@@ -242,9 +242,9 @@ Configurar VirtualHost (opcional):
 ```apache
 <VirtualHost *:80>
     ServerName telemetria.local
-    DocumentRoot /telemetria-endpoint-PHP/public
+    DocumentRoot /telemetria-endpoint-PHP-MQTT/public
 
-    <Directory /telemetria-endpoint-PHP/public>
+    <Directory /telemetria-endpoint-PHP-MQTT/public>
         AllowOverride All
         Require all granted
     </Directory>
@@ -257,7 +257,7 @@ Configurar VirtualHost (opcional):
 server {
     listen 80;
     server_name telemetria.local;
-    root /telemetria-endpoint-PHP/public;
+    root /telemetria-endpoint-PHP-MQTT/public;
 
     index index.php;
 
