@@ -33,7 +33,7 @@ Sistema completo de recepción y procesamiento de datos de telemetría construid
 
 ### Software Requerido
 - **PHP**: 7.0 o superior
-- **MySQL**: 5.7 o superior
+- **MySQL**: 5.7 o superior (o MariaDB 10.2+, PostgreSQL, SQL Server)
 - **Redis**: 6.0 o superior
 - **MQTT Broker**: Mosquitto 1.4+ (u otro broker compatible)
 - **Composer**: Gestor de dependencias PHP
