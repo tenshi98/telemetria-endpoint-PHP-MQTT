@@ -16,7 +16,6 @@ tmp/
 temp/
 
 # Dependencias (si se usan en el futuro)
-vendor/
 node_modules/
 
 # IDEs
